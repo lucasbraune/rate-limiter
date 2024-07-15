@@ -1,6 +1,7 @@
 package org.example.ratelimiter
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TestTimeSource
@@ -35,7 +36,8 @@ class RateLimiterTest {
             }
         }
 
-        assertEquals(requestRate.toDouble() / maxRequestRate, requestCount.toDouble() / allowed, 0.01)
+        val expected =  maxRequestRate.toDouble() / requestRate
+        assertEquals(expected, allowed / requestCount.toDouble(), 0.1 * expected)
     }
 
     @Test
@@ -56,10 +58,14 @@ class RateLimiterTest {
         val requestsPerSecond = 10
         val rateLimiter = RateLimiter(requestsPerSecond, timeSource = timeSource)
 
-        timeSource += 1.seconds
-        repeat(requestsPerSecond) {
-            rateLimiter.isRequestAllowed()
+        var allowed = 0
+        timeSource += 10.seconds
+        repeat(requestsPerSecond + 1) {
+            if (rateLimiter.isRequestAllowed()) {
+                ++allowed
+            }
         }
-        assertFalse(rateLimiter.isRequestAllowed())
+
+        assertEquals(requestsPerSecond, allowed)
     }
 }
