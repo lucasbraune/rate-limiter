@@ -3,8 +3,9 @@ package org.example
 import org.example.ratelimiter.RateLimiter
 
 fun main() {
-    val rateLimiter = RateLimiter(10)
+    val requestsPerSecond = 10
+    val rateLimiter = RateLimiter(requestsPerSecond)
     println(rateLimiter.isRequestAllowed())
-    Thread.sleep(100)
+    Thread.sleep(1000L / requestsPerSecond)
     println(rateLimiter.isRequestAllowed())
 }
